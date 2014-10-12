@@ -219,7 +219,7 @@ public class CDE
         }
 
         /* Ball definitely cross the direct on the time interval,
-         * but not necessary on the segment, will need to check it later.
+         * but not necessary on the segment, will check it later.
          */
         for (;;)
         {
@@ -343,22 +343,31 @@ public class CDE
             {
                 if (t1 < impactTime)
                 {
+                    /* Object state in the 'tdv' can be at time point 't1',
+                     * as well as at time point 't2'. But we return impact time = t1 here,
+                     * so we should take an impact point exactly at 't1'.
+                     */
+                    impactTime = t1;
                     impact.o1 = o1;
                     impact.o1pi = o1pi;
                     impact.o2 = o2;
                     impact.o2pi = o2pi;
                     if (Obj.Ball.getR(tdv, ball1Offs) == 0.0d)
                     {
+                        o1.getPrPosition( impactTime, o1pi, tdv, ball1Offs );
                         impact.x = Obj.Ball.getX( tdv, ball1Offs );
                         impact.y = Obj.Ball.getY( tdv, ball1Offs );
                     }
                     else if (Obj.Ball.getR(tdv, ball2Offs) == 0.0d)
                     {
+                        o2.getPrPosition( impactTime, o2pi, tdv, ball2Offs );
                         impact.x = Obj.Ball.getX( tdv, ball2Offs );
                         impact.y = Obj.Ball.getY( tdv, ball2Offs );
                     }
                     else
                     {
+                        o1.getPrPosition( impactTime, o1pi, tdv, ball1Offs );
+                        o2.getPrPosition( impactTime, o2pi, tdv, ball2Offs );
                         tt = (Obj.Ball.getR(tdv, ball1Offs) + Obj.Ball.getR(tdv, ball2Offs)) /
                                 Obj.Ball.getR(tdv, ball1Offs);
                         impact.x = Obj.Ball.getX(tdv, ball1Offs) +
@@ -366,7 +375,6 @@ public class CDE
                         impact.y = Obj.Ball.getY(tdv, ball1Offs) +
                                 tt * (Obj.Ball.getY(tdv, ball2Offs) - Obj.Ball.getY(tdv, ball1Offs));
                     }
-                    impactTime = t1;
                 }
                 return impactTime;
             }
@@ -677,21 +685,13 @@ public class CDE
         {
             double impactTime = Double.MAX_VALUE;
 
-      loop: for (int idx=0; idx<m_objects; idx++)
+            for (int idx=0; idx<m_objects; idx++)
             {
                 final Obj obj1 = m_objArray[idx];
                 for (int jdx=idx+1; jdx<m_objects; jdx++)
                 {
                     final Obj obj2 = m_objArray[jdx];
                     impactTime = getImpactTime( obj1, obj2, timeRemaining, impactTime, m_impact );
-                    if (impactTime == Double.MIN_VALUE)
-                    {
-                        impactTime = Double.MAX_VALUE;
-                        idx = 0;
-                        break;
-                    }
-                    else if (impactTime == 0.0d)
-                        break loop;
                 }
             }
 
