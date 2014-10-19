@@ -20,9 +20,9 @@
 
 package org.jsl.tests.SimpleTest;
 
+import org.jsl.cde.Body;
 import org.jsl.cde.CDE;
 import org.jsl.cde.Impulse;
-import org.jsl.cde.Obj;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,11 +30,11 @@ import java.util.ArrayDeque;
 
 public class TestPanel extends JPanel
 {
-    private static final int FPS = 20;
+    private static final int FPS = 30;
     private static double FRAME_INTERVAL_S = (1.0d / FPS);
     private static long FRAME_INTERVAL_MS = (1000 / FPS);
 
-    private static abstract class DObj extends Obj
+    private static abstract class DObj extends Body
     {
         public abstract void draw( Graphics g, double [] tdv );
     }
@@ -61,7 +61,7 @@ public class TestPanel extends JPanel
 
         public int getPrType( int id )
         {
-            return Obj.SEGMENT;
+            return Body.SEGMENT;
         }
 
         public int getPrPosition( double t, int id, double [] dv, int offs )
@@ -77,16 +77,16 @@ public class TestPanel extends JPanel
             switch (id)
             {
                 case 0: /* left side */
-                    return Obj.Segment.set(dv, offs, m_x1, m_y1, m_x1, m_y2);
+                    return Body.Segment.set(dv, offs, m_x1, m_y1, m_x1, m_y2);
 
                 case 1: /* bottom side */
-                    return Obj.Segment.set(dv, offs, m_x1, m_y2, m_x2, m_y2);
+                    return Body.Segment.set(dv, offs, m_x1, m_y2, m_x2, m_y2);
 
                 case 2: /* right side */
-                    return Obj.Segment.set(dv, offs, m_x2, m_y2, m_x2, m_y1);
+                    return Body.Segment.set(dv, offs, m_x2, m_y2, m_x2, m_y1);
 
                 case 3: /* bottom side */
-                    return Obj.Segment.set(dv, offs, m_x2, m_y1, m_x1, m_y1);
+                    return Body.Segment.set(dv, offs, m_x2, m_y1, m_x1, m_y1);
             }
             throw new RuntimeException( "Invalid object ID=" + id );
         }
@@ -114,8 +114,8 @@ public class TestPanel extends JPanel
             {
                 getPrPosition( 0, idx, tdv, 0 );
                 g.drawLine(
-                        (int) Obj.Segment.getX1(tdv, 0), (int) Obj.Segment.getY1(tdv, 0),
-                        (int) Obj.Segment.getX2(tdv, 0), (int) Obj.Segment.getY2(tdv, 0) );
+                        (int) Body.Segment.getX1(tdv, 0), (int) Body.Segment.getY1(tdv, 0),
+                        (int) Body.Segment.getX2(tdv, 0), (int) Body.Segment.getY2(tdv, 0) );
             }
         }
     }
@@ -147,7 +147,7 @@ public class TestPanel extends JPanel
         public int getPrType( int id )
         {
             assert( id < 4 );
-            return Obj.SEGMENT;
+            return Body.SEGMENT;
         }
 
         public int getPrPosition( double t, int id, double[] dv, int offs )
@@ -204,12 +204,13 @@ public class TestPanel extends JPanel
 
         public void draw( Graphics g, double [] tdv )
         {
+            g.setColor( Color.BLUE );
             for (int idx=0; idx<getPrCount(); idx++)
             {
                 getPrPosition( 0, idx, tdv, 0 );
                 g.drawLine(
-                        (int) Obj.Segment.getX1(tdv, 0), (int) Obj.Segment.getY1(tdv, 0),
-                        (int) Obj.Segment.getX2(tdv, 0), (int) Obj.Segment.getY2(tdv, 0) );
+                        (int) Body.Segment.getX1(tdv, 0), (int) Body.Segment.getY1(tdv, 0),
+                        (int) Body.Segment.getX2(tdv, 0), (int) Body.Segment.getY2(tdv, 0) );
             }
             g.setColor( Color.red );
             g.drawOval( (int)m_x, (int)m_y, 2, 2 );
@@ -246,7 +247,7 @@ public class TestPanel extends JPanel
         public int getPrPosition( double t, int id, double [] dv, int offs )
         {
             assert( id == 0 );
-            return Obj.Ball.set(dv, offs, (m_x + t * m_vx), (m_y + t*m_vy), m_r);
+            return Body.Ball.set(dv, offs, (m_x + t * m_vx), (m_y + t*m_vy), m_r);
         }
 
         public int getPrImpulse( int id, double x, double y, double [] dv, int offs )
@@ -306,13 +307,13 @@ public class TestPanel extends JPanel
         public int getPrType( int id )
         {
             assert( id == 0 );
-            return Obj.SEGMENT;
+            return Body.SEGMENT;
         }
 
         public int getPrPosition( double t, int id, double[] dv, int offs )
         {
             assert( id == 0 );
-            return Obj.Segment.set( dv, offs, m_x1, m_y1, m_x2, m_y2 );
+            return Body.Segment.set( dv, offs, m_x1, m_y1, m_x2, m_y2 );
         }
 
         public int getPrImpulse( int id, double x, double y, double [] dv, int offs )
@@ -371,7 +372,7 @@ public class TestPanel extends JPanel
         if (true)
         {
             m_objs.push( new Table(20, 20, 380, 580) );
-            m_objs.push( new Ball(/*x*/ 50.0d, /*y*/ 50.0d, /*r*/ 10.0d, /*vx*/ 30.0d, /*vy*/ 40.0d) );
+            m_objs.push( new Ball(/*x*/ 60.0d, /*y*/ 60.0d, /*r*/ 10.0d, /*vx*/ 20.0d, /*vy*/ 40.0d) );
             m_objs.push( new Fence(/*x*/  20 + 180, /*y*/  20 + 280,
                                    /*r1*/ 140,      /*r2*/ 20,
                                    /*rv*/ Math.PI / 180.0d * 20,

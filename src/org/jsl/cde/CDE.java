@@ -33,9 +33,9 @@ public class CDE
 
     private static class Impact
     {
-        public Obj o1;
+        public Body o1;
         public int o1pi;
-        public Obj o2;
+        public Body o2;
         public int o2pi;
         public double x;
         public double y;
@@ -46,9 +46,9 @@ public class CDE
         }
     }
 
-    private static abstract class Segment2Ball extends Obj
+    private static abstract class Segment2Ball extends Body
     {
-        public Obj m_obj;
+        public Body m_obj;
         public int m_id;
 
         public int getPrCount()
@@ -58,7 +58,7 @@ public class CDE
 
         public int getPrType( int id )
         {
-            return Obj.BALL;
+            return Body.BALL;
         }
 
         public int getPrImpulse( int id, double x, double y, double [] dv, int offs )
@@ -85,7 +85,7 @@ public class CDE
         {
             assert( id == 0 );
             m_obj.getPrPosition( t, m_id, dv, offs );
-            return Obj.Ball.set( dv, offs, Obj.Segment.getX1(dv, offs), Obj.Segment.getY1(dv, offs), 0.0d );
+            return Body.Ball.set( dv, offs, Body.Segment.getX1(dv, offs), Body.Segment.getY1(dv, offs), 0.0d );
         }
     }
 
@@ -95,7 +95,7 @@ public class CDE
         {
             assert( id == 0 );
             m_obj.getPrPosition( t, m_id, dv, offs );
-            return Obj.Ball.set( dv, offs, Obj.Segment.getX2(dv, offs), Obj.Segment.getY2(dv, offs), 0.0d );
+            return Body.Ball.set( dv, offs, Body.Segment.getX2(dv, offs), Body.Segment.getY2(dv, offs), 0.0d );
         }
     }
 
@@ -154,9 +154,9 @@ public class CDE
     private static double getDistanceDB( double [] tdv, int segmentOffs, int ballOffs )
     {
         return getDistanceDB(
-                Obj.Segment.getX1(tdv, segmentOffs), Obj.Segment.getY1(tdv, segmentOffs),
-                Obj.Segment.getX2(tdv, segmentOffs), Obj.Segment.getY2(tdv, segmentOffs),
-                Obj.Ball.getX(tdv, ballOffs), Obj.Ball.getY(tdv, ballOffs), Obj.Ball.getR(tdv, ballOffs) );
+                Body.Segment.getX1(tdv, segmentOffs), Body.Segment.getY1(tdv, segmentOffs),
+                Body.Segment.getX2(tdv, segmentOffs), Body.Segment.getY2(tdv, segmentOffs),
+                Body.Ball.getX(tdv, ballOffs), Body.Ball.getY(tdv, ballOffs), Body.Ball.getR(tdv, ballOffs) );
     }
 
     /**
@@ -173,19 +173,19 @@ public class CDE
     private static double getDistanceBB( double [] tdv, int ball1Offs, int ball2Offs )
     {
         return getDistanceBB(
-                Obj.Ball.getX(tdv, ball1Offs), Obj.Ball.getY(tdv, ball1Offs), Obj.Ball.getR(tdv, ball1Offs),
-                Obj.Ball.getX(tdv, ball2Offs), Obj.Ball.getY(tdv, ball2Offs), Obj.Ball.getR(tdv, ball2Offs) );
+                Body.Ball.getX(tdv, ball1Offs), Body.Ball.getY(tdv, ball1Offs), Body.Ball.getR(tdv, ball1Offs),
+                Body.Ball.getX(tdv, ball2Offs), Body.Ball.getY(tdv, ball2Offs), Body.Ball.getR(tdv, ball2Offs) );
     }
 
     private static double getImpactTimeSS(
-            double [] tdv, Obj o1, int o1pi, Obj o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            double [] tdv, Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
     {
         //assert( false );
         return impactTime;
     }
 
     private static double getImpactTimeSB(
-            double [] tdv, Obj o1, int o1pi, Obj o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            double [] tdv, Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
     {
         /* o1[o1pi] - segment
          * o2[o2pi] - ball
@@ -228,13 +228,13 @@ public class CDE
             {
                 if (t1 < impactTime)
                 {
-                    final double sx = (Obj.Segment.getX2(tdv, segmentOffs) - Obj.Segment.getX1(tdv, segmentOffs));
-                    final double sy = (Obj.Segment.getY2(tdv, segmentOffs) - Obj.Segment.getY1(tdv, segmentOffs));
+                    final double sx = (Body.Segment.getX2(tdv, segmentOffs) - Body.Segment.getX1(tdv, segmentOffs));
+                    final double sy = (Body.Segment.getY2(tdv, segmentOffs) - Body.Segment.getY1(tdv, segmentOffs));
                     final double segmentLength = Math.sqrt( sx*sx + sy*sy );
                     if (segmentLength > 0.0d)
                     {
-                        final double bx = (Obj.Ball.getX(tdv, ballOffs) - Obj.Segment.getX1(tdv, segmentOffs));
-                        final double by = (Obj.Ball.getY(tdv, ballOffs) - Obj.Segment.getY1(tdv, segmentOffs));
+                        final double bx = (Body.Ball.getX(tdv, ballOffs) - Body.Segment.getX1(tdv, segmentOffs));
+                        final double by = (Body.Ball.getY(tdv, ballOffs) - Body.Segment.getY1(tdv, segmentOffs));
                         final double tbx = (((sx * bx) + (sy * by)) / segmentLength);
                         if ((tbx >= 0.0d) && (tbx <= segmentLength))
                         {
@@ -243,8 +243,8 @@ public class CDE
                             impact.o1pi = o1pi;
                             impact.o2 = o2;
                             impact.o2pi = o2pi;
-                            impact.x = Obj.Segment.getX1(tdv, segmentOffs) + (tbx * sx / segmentLength);
-                            impact.y = Obj.Segment.getY1(tdv, segmentOffs) + (tbx * sy / segmentLength);
+                            impact.x = Body.Segment.getX1(tdv, segmentOffs) + (tbx * sx / segmentLength);
+                            impact.y = Body.Segment.getY1(tdv, segmentOffs) + (tbx * sy / segmentLength);
                             impactTime = t1;
                         }
                     }
@@ -269,7 +269,7 @@ public class CDE
     }
 
     private static double getImpactTimeBB(
-            double [] tdv, Obj o1, int o1pi, Obj o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            double [] tdv, Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
     {
         /* It is not so simple to detect the impact time for balls,
          * especially if they are relatively small comparing to their speed.
@@ -352,28 +352,28 @@ public class CDE
                     impact.o1pi = o1pi;
                     impact.o2 = o2;
                     impact.o2pi = o2pi;
-                    if (Obj.Ball.getR(tdv, ball1Offs) == 0.0d)
+                    if (Body.Ball.getR(tdv, ball1Offs) == 0.0d)
                     {
                         o1.getPrPosition( impactTime, o1pi, tdv, ball1Offs );
-                        impact.x = Obj.Ball.getX( tdv, ball1Offs );
-                        impact.y = Obj.Ball.getY( tdv, ball1Offs );
+                        impact.x = Body.Ball.getX( tdv, ball1Offs );
+                        impact.y = Body.Ball.getY( tdv, ball1Offs );
                     }
-                    else if (Obj.Ball.getR(tdv, ball2Offs) == 0.0d)
+                    else if (Body.Ball.getR(tdv, ball2Offs) == 0.0d)
                     {
                         o2.getPrPosition( impactTime, o2pi, tdv, ball2Offs );
-                        impact.x = Obj.Ball.getX( tdv, ball2Offs );
-                        impact.y = Obj.Ball.getY( tdv, ball2Offs );
+                        impact.x = Body.Ball.getX( tdv, ball2Offs );
+                        impact.y = Body.Ball.getY( tdv, ball2Offs );
                     }
                     else
                     {
                         o1.getPrPosition( impactTime, o1pi, tdv, ball1Offs );
                         o2.getPrPosition( impactTime, o2pi, tdv, ball2Offs );
-                        tt = (Obj.Ball.getR(tdv, ball1Offs) + Obj.Ball.getR(tdv, ball2Offs)) /
-                                Obj.Ball.getR(tdv, ball1Offs);
-                        impact.x = Obj.Ball.getX(tdv, ball1Offs) +
-                                tt * (Obj.Ball.getX(tdv, ball2Offs) - Obj.Ball.getX(tdv, ball1Offs));
-                        impact.y = Obj.Ball.getY(tdv, ball1Offs) +
-                                tt * (Obj.Ball.getY(tdv, ball2Offs) - Obj.Ball.getY(tdv, ball1Offs));
+                        tt = (Body.Ball.getR(tdv, ball1Offs) + Body.Ball.getR(tdv, ball2Offs)) /
+                                Body.Ball.getR(tdv, ball1Offs);
+                        impact.x = Body.Ball.getX(tdv, ball1Offs) +
+                                tt * (Body.Ball.getX(tdv, ball2Offs) - Body.Ball.getX(tdv, ball1Offs));
+                        impact.y = Body.Ball.getY(tdv, ball1Offs) +
+                                tt * (Body.Ball.getY(tdv, ball2Offs) - Body.Ball.getY(tdv, ball1Offs));
                     }
                 }
                 return impactTime;
@@ -391,7 +391,7 @@ public class CDE
     }
 
     private double getImpactTimeSB(
-            Obj o1, int o1pi, Obj o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
     {
         assert( o2pi == 0 );
 
@@ -418,7 +418,7 @@ public class CDE
         return impactTime;
     }
 
-    private double getImpactTime( Obj o1, Obj o2, double frameTime, double impactTime, Impact impact )
+    private double getImpactTime( Body o1, Body o2, double frameTime, double impactTime, Impact impact )
     {
         final int o1pc = o1.getPrCount();
         final int o2pc = o2.getPrCount();
@@ -430,19 +430,19 @@ public class CDE
                 final int type = ((o1.getPrType(o1pi) << 8) | o2.getPrType(o2pi));
                 switch (type)
                 {
-                    case ((Obj.SEGMENT << 8) | Obj.SEGMENT):
+                    case ((Body.SEGMENT << 8) | Body.SEGMENT):
                         impactTime = getImpactTimeSS( m_tdv, o1, o1pi, o2, o2pi, frameTime, impactTime, impact );
                         break;
 
-                    case ((Obj.SEGMENT << 8) | Obj.BALL):
+                    case ((Body.SEGMENT << 8) | Body.BALL):
                         impactTime = getImpactTimeSB( o1, o1pi, o2, o2pi, frameTime, impactTime, impact );
                         break;
 
-                    case ((Obj.BALL << 8) | Obj.SEGMENT):
+                    case ((Body.BALL << 8) | Body.SEGMENT):
                         impactTime = getImpactTimeSB( o2, o2pi, o1, o1pi, frameTime, impactTime, impact );
                         break;
 
-                    case ((Obj.BALL << 8) | Obj.BALL):
+                    case ((Body.BALL << 8) | Body.BALL):
                         impactTime = getImpactTimeBB( m_tdv, o1, o1pi, o2, o2pi, frameTime, impactTime, impact );
                         break;
 
@@ -532,19 +532,19 @@ public class CDE
 
         double impactLineX, impactLineY;
 
-        if ((impact.x == Obj.Segment.getX1(tdv, segmentOffs)) &&
-            (impact.y == Obj.Segment.getY1(tdv, segmentOffs)))
+        if ((impact.x == Body.Segment.getX1(tdv, segmentOffs)) &&
+            (impact.y == Body.Segment.getY1(tdv, segmentOffs)))
         {
             /* impact line is a vector from impact point to the ball center */
-            impactLineX = (Obj.Ball.getX(tdv, ballOffs) - impact.x);
-            impactLineY = (Obj.Ball.getY(tdv, ballOffs) - impact.y);
+            impactLineX = (Body.Ball.getX(tdv, ballOffs) - impact.x);
+            impactLineY = (Body.Ball.getY(tdv, ballOffs) - impact.y);
         }
-        else if ((impact.x == Obj.Segment.getX2(tdv, segmentOffs)) &&
-                 (impact.y == Obj.Segment.getY2(tdv, segmentOffs)))
+        else if ((impact.x == Body.Segment.getX2(tdv, segmentOffs)) &&
+                 (impact.y == Body.Segment.getY2(tdv, segmentOffs)))
         {
             /* impact line is a vector from impact point to the ball center */
-            impactLineX = (Obj.Ball.getX(tdv, ballOffs) - impact.x);
-            impactLineY = (Obj.Ball.getY(tdv, ballOffs) - impact.y);
+            impactLineX = (Body.Ball.getX(tdv, ballOffs) - impact.x);
+            impactLineY = (Body.Ball.getY(tdv, ballOffs) - impact.y);
         }
         else
         {
@@ -552,8 +552,8 @@ public class CDE
              * rotate it by matrix  |  0  1 |
              *                      | -1  0 |
              */
-            final double sx = (Obj.Segment.getX2(tdv, segmentOffs) - Obj.Segment.getX1(tdv, segmentOffs));
-            final double sy = (Obj.Segment.getY2(tdv, segmentOffs) - Obj.Segment.getY1(tdv, segmentOffs));
+            final double sx = (Body.Segment.getX2(tdv, segmentOffs) - Body.Segment.getX1(tdv, segmentOffs));
+            final double sy = (Body.Segment.getY2(tdv, segmentOffs) - Body.Segment.getY1(tdv, segmentOffs));
             impactLineX = sy;
             impactLineY = -sx;
         }
@@ -579,8 +579,8 @@ public class CDE
 
         double impactLineX, impactLineY;
 
-        if ((Obj.Ball.getR(tdv, ball1Offs) == 0.0d) &&
-            (Obj.Ball.getR(tdv, ball2Offs) == 0.0d))
+        if ((Body.Ball.getR(tdv, ball1Offs) == 0.0d) &&
+            (Body.Ball.getR(tdv, ball2Offs) == 0.0d))
         {
             assert( false );
             impactLineX = 0.0d;
@@ -588,8 +588,8 @@ public class CDE
         }
         else
         {
-            impactLineX = (Obj.Ball.getX(tdv, ball2Offs) - Obj.Ball.getX(tdv, ball1Offs));
-            impactLineY = (Obj.Ball.getY(tdv, ball2Offs) - Obj.Ball.getY(tdv, ball1Offs));
+            impactLineX = (Body.Ball.getX(tdv, ball2Offs) - Body.Ball.getX(tdv, ball1Offs));
+            impactLineY = (Body.Ball.getY(tdv, ball2Offs) - Body.Ball.getY(tdv, ball1Offs));
         }
 
         return handleImpact( impact, tdv, ball1ImpulseOffs, ball2ImpulseOffs, offs, impactLineX, impactLineY );
@@ -614,19 +614,19 @@ public class CDE
         final int offs = impact.o2.getPrPosition( 0.0d, impact.o2pi, tdv, o2offs );
         switch (impact.getType())
         {
-            case ((Obj.SEGMENT << 8) | Obj.SEGMENT):
+            case ((Body.SEGMENT << 8) | Body.SEGMENT):
                 handleImpactSS( impact, tdv, o1offs, o2offs, offs );
                 break;
 
-            case ((Obj.SEGMENT << 8) | Obj.BALL):
+            case ((Body.SEGMENT << 8) | Body.BALL):
                 handleImpactSB( impact, tdv, o1offs, o2offs, offs );
                 break;
 
-            case ((Obj.BALL << 8) | Obj.SEGMENT):
+            case ((Body.BALL << 8) | Body.SEGMENT):
                 /* Ball will be always the second impact object. */
                 throw new RuntimeException( "Internal error" );
 
-            case ((Obj.BALL << 8) | Obj.BALL):
+            case ((Body.BALL << 8) | Body.BALL):
                 handleImpactBB( impact, tdv, o1offs, o2offs, offs );
                 break;
 
@@ -635,8 +635,8 @@ public class CDE
         }
     }
 
-    private final HashSet<Obj> m_objHash;
-    private Obj [] m_objArray;
+    private final HashSet<Body> m_objHash;
+    private Body[] m_objArray;
     private int m_objects;
 
     private final Impact m_impact;
@@ -647,14 +647,14 @@ public class CDE
 
     public CDE()
     {
-        m_objHash = new HashSet<Obj>();
+        m_objHash = new HashSet<Body>();
         m_impact = new Impact();
         m_segmentE1Ball = new SegmentE1Ball();
         m_segmentE2Ball = new SegmentE2Ball();
         m_tdv = new double[32];
     }
 
-    public void add( Obj obj )
+    public void add( Body obj )
     {
         m_objHash.add( obj );
         m_objects = -1;
@@ -672,10 +672,10 @@ public class CDE
                 (m_objArray.length < m_objHash.size()))
             {
                 final int newSize = (m_objects < 32) ? 32 : clp2(m_objects);
-                m_objArray = new Obj[newSize];
+                m_objArray = new Body[newSize];
             }
 
-            Iterator<Obj> it = m_objHash.iterator();
+            Iterator<Body> it = m_objHash.iterator();
             for (int idx=0; it.hasNext(); idx++)
                 m_objArray[idx] = it.next();
         }
@@ -687,10 +687,10 @@ public class CDE
 
             for (int idx=0; idx<m_objects; idx++)
             {
-                final Obj obj1 = m_objArray[idx];
+                final Body obj1 = m_objArray[idx];
                 for (int jdx=idx+1; jdx<m_objects; jdx++)
                 {
-                    final Obj obj2 = m_objArray[jdx];
+                    final Body obj2 = m_objArray[jdx];
                     impactTime = getImpactTime( obj1, obj2, timeRemaining, impactTime, m_impact );
                 }
             }

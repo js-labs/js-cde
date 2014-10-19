@@ -20,25 +20,10 @@
 
 package org.jsl.cde;
 
-public abstract class Obj
+public abstract class Body
 {
     public static final int SEGMENT = 1;
     public static final int BALL    = 2;
-
-    public static class Point
-    {
-        public static final int SIZE = 2;
-
-        public static int set( double [] dv, int offs, double x, double y )
-        {
-            dv[offs+0] = x;
-            dv[offs+1] = y;
-            return (offs + SIZE);
-        }
-
-        public static double getX( double [] dv, int offs ) { return dv[offs+0]; }
-        public static double getY( double [] dv, int offs ) { return dv[offs+1]; }
-    }
 
     public static class Ball
     {
