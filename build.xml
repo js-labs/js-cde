@@ -1,0 +1,61 @@
+<!--
+ * JS-CDE framework.
+ * Copyright (C) 2013 Sergey Zubarev
+ * info@js-labs.org
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<project name="JS-Collider">
+
+    <property name="VERSION" value="0.1"/>
+    <property name="OUT_DIR" location="out/production"/>
+
+    <macrodef name="run-test">
+        <attribute name="name"/>
+        <sequential>
+            <java classname="org.jsl.tests.@{name}.Main" fork="true">
+                <classpath>
+                    <pathelement location="${OUT_DIR}/js-cde"/>
+                    <pathelement location="${OUT_DIR}/tests"/>
+                </classpath>
+                <jvmarg value="-ea"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="clean">
+        <delete dir="out"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${OUT_DIR}/js-cde"/>
+        <javac srcdir="src" destdir="${OUT_DIR}/js-cde" includeantruntime="false" debug="true"/>
+    </target>
+
+    <target name="compile_tests" depends="compile">
+        <mkdir dir="${OUT_DIR}/tests"/>
+        <javac srcdir="tests/src" destdir="${OUT_DIR}/tests" includeantruntime="false" debug="true">
+            <classpath>
+                <pathelement location="${OUT_DIR}/js-cde"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="test.SimpleTest" depends="compile_tests">
+        <run-test name="SimpleTest"/>
+    </target>
+
+    <target name="tests" depends="test.SimpleTest"/>
+</project>
