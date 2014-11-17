@@ -636,7 +636,7 @@ public class CDE
     }
 
     private final HashSet<Body> m_objHash;
-    private Body[] m_objArray;
+    private Body [] m_objArray;
     private int m_objects;
 
     private final Impact m_impact;
@@ -654,13 +654,13 @@ public class CDE
         m_tdv = new double[32];
     }
 
-    public void add( Body obj )
+    public final void add( Body obj )
     {
         m_objHash.add( obj );
         m_objects = -1;
     }
 
-    public void run( final double runTime )
+    public final void run( final double runTime )
     {
         if (s_logger.isLoggable( Level.FINE))
             s_logger.fine( "runTime=" + runTime );
