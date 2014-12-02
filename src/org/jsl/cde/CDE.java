@@ -707,7 +707,8 @@ public class CDE
                     handleImpact( m_impact );
 
                     timeRemaining -= impactTime;
-                    if (timeRemaining == 0.0) break;
+                    if (timeRemaining == 0.0)
+                        break;
                 }
                 else
                 {
