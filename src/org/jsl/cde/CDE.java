@@ -190,8 +190,6 @@ public class CDE
         /* o1[o1pi] - segment
          * o2[o2pi] - ball
          */
-        assert( o2pi == 0 );
-
         double t1 = 0.0;
         final int segmentOffs = 0;
         final int ballOffs = o1.getPrPosition( t1, o1pi, tdv, segmentOffs );
@@ -276,9 +274,6 @@ public class CDE
          * We will try to find minimum distance first (distance between centers - (radius sum)),
          * and consider they impacts if minimum distance is less or equal zero.
          */
-        assert( o1pi == 0 );
-        assert( o2pi == 0 );
-
         double t1 = 0.0;
         double t2 = frameTime;
         double t11 = (t2 - (t2 - t1)/GSC);
@@ -393,8 +388,6 @@ public class CDE
     private double getImpactTimeSB(
             Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
     {
-        assert( o2pi == 0 );
-
         m_segmentE1Ball.m_obj = o1;
         m_segmentE1Ball.m_id = o1pi;
         impactTime = getImpactTimeBB( m_tdv, m_segmentE1Ball, 0, o2, o2pi, frameTime, impactTime, impact );
@@ -658,6 +651,12 @@ public class CDE
     {
         m_objHash.add( obj );
         m_objects = -1;
+    }
+
+    public final void remove( Body obj )
+    {
+        if (m_objHash.remove(obj))
+            m_objects = -1;
     }
 
     public final void run( final double runTime )
