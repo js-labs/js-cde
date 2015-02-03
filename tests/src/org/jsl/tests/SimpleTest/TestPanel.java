@@ -36,6 +36,15 @@ public class TestPanel extends JPanel
 
     private static abstract class DObj extends Body
     {
+        public DObj( int [] groups )
+        {
+            super( groups );
+        }
+
+        public DObj()
+        {
+        }
+
         public abstract void draw( Graphics g, double [] tdv );
     }
 
@@ -227,6 +236,7 @@ public class TestPanel extends JPanel
 
         public Ball( double x, double y, double r, double vx, double vy )
         {
+            super( new int [] { 0, 1 } );
             m_x = x;
             m_y = y;
             m_r = r;

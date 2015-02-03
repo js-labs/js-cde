@@ -471,12 +471,12 @@ public class CDE
         if (Impulse.getM(tdv, impulse1Offs) == Double.MAX_VALUE)
         {
             Impulse.setVx( tdv, impulse2Offs,
-                    (2.0d * Impulse.getVx(tdv, impulse1Offs)) - Impulse.getVx(tdv, impulse2Offs) );
+                    Impulse.getVx(tdv, impulse1Offs) - Impulse.getVx(tdv, impulse2Offs) );
         }
         else if (Impulse.getM(tdv, impulse2Offs) == Double.MAX_VALUE)
         {
             Impulse.setVx( tdv, impulse1Offs,
-                    (2.0d * Impulse.getVx(tdv, impulse2Offs)) - Impulse.getVx(tdv, impulse1Offs) );
+                    Impulse.getVx(tdv, impulse2Offs) - Impulse.getVx(tdv, impulse1Offs) );
         }
         else
         {
@@ -690,7 +690,8 @@ public class CDE
                 for (int jdx=idx+1; jdx<m_objects; jdx++)
                 {
                     final Body obj2 = m_objArray[jdx];
-                    impactTime = getImpactTime( obj1, obj2, timeRemaining, impactTime, m_impact );
+                    if (obj1.inTheSameGroup(obj2))
+                        impactTime = getImpactTime( obj1, obj2, timeRemaining, impactTime, m_impact );
                 }
             }
 

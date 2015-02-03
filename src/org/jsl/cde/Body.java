@@ -20,10 +20,16 @@
 
 package org.jsl.cde;
 
+import java.util.Arrays;
+
 public abstract class Body
 {
     public static final int SEGMENT = 1;
     public static final int BALL    = 2;
+
+    private static final int [] DEFAULT_GROUPS = { 0 };
+
+    private final int [] m_groups;
 
     public static class Ball
     {
@@ -59,6 +65,46 @@ public abstract class Body
         public static double getY1( double [] dv, int offs ) { return dv[offs+1]; }
         public static double getX2( double [] dv, int offs ) { return dv[offs+2]; }
         public static double getY2( double [] dv, int offs ) { return dv[offs+3]; }
+    }
+
+    public Body( int [] groups )
+    {
+        Arrays.sort( groups );
+        m_groups = groups;
+    }
+
+    public Body()
+    {
+        m_groups = DEFAULT_GROUPS;
+    }
+
+    boolean inTheSameGroup( Body obj2 )
+    {
+        if (m_groups == obj2.m_groups)
+        {
+            /* Definitely in the same group. */
+            return true;
+        }
+
+        int [] arr1, arr2;
+        if (m_groups.length <= obj2.m_groups.length)
+        {
+            arr1 = m_groups;
+            arr2 = obj2.m_groups;
+        }
+        else
+        {
+            arr1 = obj2.m_groups;
+            arr2 = m_groups;
+        }
+
+        for (int g : arr1)
+        {
+            if (Arrays.binarySearch(arr2, g) >= 0)
+                return true;
+        }
+
+        return false;
     }
 
     public abstract int getPrCount();
