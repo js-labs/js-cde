@@ -503,6 +503,9 @@ public class CDE
         impact.o2.applyPrImpulse( impact.o2pi, impact.x, impact.y,
                     Impulse.getVx(tdv, impulse2Offs), Impulse.getVy(tdv, impulse2Offs) );
 
+        impact.o1.handleImpact( impact.o2 );
+        impact.o2.handleImpact( impact.o1 );
+
         return true;
     }
 

@@ -113,4 +113,8 @@ public abstract class Body
     public abstract int getPrImpulse( int id, double x, double y, double [] dv, int offs );
     public abstract int applyPrImpulse( int id, double x, double y, double vx, double vy );
     public abstract void move( double t );
+
+    public void handleImpact( Body body )
+    {
+    }
 }
