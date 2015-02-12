@@ -67,15 +67,15 @@ public abstract class Body
         public static double getY2( double [] dv, int offs ) { return dv[offs+3]; }
     }
 
+    public Body()
+    {
+        m_groups = DEFAULT_GROUPS;
+    }
+
     public Body( int [] groups )
     {
         Arrays.sort( groups );
         m_groups = groups;
-    }
-
-    public Body()
-    {
-        m_groups = DEFAULT_GROUPS;
     }
 
     boolean inTheSameGroup( Body obj2 )
@@ -114,7 +114,8 @@ public abstract class Body
     public abstract int applyPrImpulse( int id, double x, double y, double vx, double vy );
     public abstract void move( double t );
 
-    public void handleImpact( Body body )
+    public void handleImpact( Body b )
     {
+        /* Do nothing */
     }
 }

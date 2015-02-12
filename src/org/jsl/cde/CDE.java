@@ -178,7 +178,7 @@ public class CDE
     }
 
     private static double getImpactTimeSS(
-            double [] tdv, Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            double [] tdv, Body b1, int b1pi, Body b2, int b2pi, double frameTime, double impactTime, Impact impact )
     {
         //assert( false );
         return impactTime;
