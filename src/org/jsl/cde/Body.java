@@ -31,40 +31,47 @@ public abstract class Body
 
     private final int [] m_groups;
 
-    public static class Ball
+    public static class Point
     {
-        public static final int SIZE = 3;
+        public static final int SIZE = 2;
 
-        public static int set( double [] dv, int offs, double x, double y, double r )
+        public static int set( double [] dv, int offs, double x, double y )
         {
             dv[offs+0] = x;
             dv[offs+1] = y;
-            dv[offs+2] = r;
             return (offs + SIZE);
         }
 
         public static double getX( double [] dv, int offs ) { return dv[offs+0]; }
         public static double getY( double [] dv, int offs ) { return dv[offs+1]; }
-        public static double getR( double [] dv, int offs ) { return dv[offs+2]; }
+    }
+
+    public static class Ball
+    {
+        public static int set( double [] dv, int offs, double x, double y, double r )
+        {
+            offs += Point.set( dv, offs, x, y );
+            dv[offs] = r;
+            return (offs + 1);
+        }
+
+        public static double getX( double [] dv, int offs ) { return Point.getX(dv, offs); }
+        public static double getY( double [] dv, int offs ) { return Point.getY(dv, offs); }
+        public static double getR( double [] dv, int offs ) { return dv[offs+Point.SIZE]; }
     }
 
     public static class Segment
     {
-        public static final int SIZE = 4;
-
         public static int set( double [] dv, int offs, double x1, double y1, double x2, double y2 )
         {
-            dv[offs+0] = x1;
-            dv[offs+1] = y1;
-            dv[offs+2] = x2;
-            dv[offs+3] = y2;
-            return (offs + SIZE);
+            offs = Point.set( dv, offs, x1, y1 );
+            return Point.set( dv, offs, x2, y2 );
         }
 
-        public static double getX1( double [] dv, int offs ) { return dv[offs+0]; }
-        public static double getY1( double [] dv, int offs ) { return dv[offs+1]; }
-        public static double getX2( double [] dv, int offs ) { return dv[offs+2]; }
-        public static double getY2( double [] dv, int offs ) { return dv[offs+3]; }
+        public static double getX1( double [] dv, int offs ) { return Point.getX(dv, offs); }
+        public static double getY1( double [] dv, int offs ) { return Point.getY(dv, offs); }
+        public static double getX2( double [] dv, int offs ) { return Point.getX(dv, offs+Point.SIZE); }
+        public static double getY2( double [] dv, int offs ) { return Point.getY(dv, offs+Point.SIZE); }
     }
 
     public Body()

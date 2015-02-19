@@ -141,6 +141,14 @@ public class CDE
         }
     }
 
+    private static double getDistanceDP( double [] tdv, int segment1Offs, int pointOffs )
+    {
+        return getDistanceDP(
+                Body.Segment.getX1(tdv, segment1Offs), Body.Segment.getY1(tdv, segment1Offs),
+                Body.Segment.getX2(tdv, segment1Offs), Body.Segment.getY2(tdv, segment1Offs),
+                Body.Point.getX(tdv, pointOffs), Body.Point.getY(tdv, pointOffs) );
+    }
+
     /**
      * Returns distance between direct on points
      * (x1, y1) - (x2, y2) and ball at point (bx, by) with radius (br).
@@ -174,33 +182,126 @@ public class CDE
     {
         return getDistanceBB(
                 Body.Ball.getX(tdv, ball1Offs), Body.Ball.getY(tdv, ball1Offs), Body.Ball.getR(tdv, ball1Offs),
-                Body.Ball.getX(tdv, ball2Offs), Body.Ball.getY(tdv, ball2Offs), Body.Ball.getR(tdv, ball2Offs) );
+                Body.Ball.getX(tdv, ball2Offs), Body.Ball.getY(tdv, ball2Offs), Body.Ball.getR(tdv, ball2Offs));
+    }
+
+    private static double getImpactTimeSS(
+            double [] tdv, Body b1, int b1pi, Body b2, int b2pi, int b2ps, double frameTime, double impactTime, Impact impact )
+    {
+        /* b1[b1pi] - segment
+         * b2[b2pi] - segment
+         */
+        double t1 = 0.0d;
+        final int segment1Offs = 0;
+        final int segment2Offs = b1.getPrPosition( t1, b1pi, tdv, segment1Offs );
+        b2.getPrPosition( t1, b2pi, tdv, segment2Offs );
+
+        double d1 = getDistanceDP( tdv, segment1Offs, segment2Offs+b2ps );
+        if (d1 < 0.0d)
+            return impactTime;
+
+        double t2 = frameTime;
+        b1.getPrPosition( t2, b1pi, tdv, segment1Offs );
+        b2.getPrPosition( t2, b2pi, tdv, segment2Offs );
+        double d2 = getDistanceDP( tdv, segment1Offs, segment2Offs+b2ps );
+
+        if (d2 > 0.0d)
+        {
+            /* let's try t2 = (t2 / 2),
+             * if distance still > 0 - no impact.
+             */
+            t2 /= 2.0d;
+            b1.getPrPosition( t2, b1pi, tdv, segment1Offs );
+            b2.getPrPosition( t2, b2pi, tdv, segment2Offs );
+            d2 = getDistanceDP( tdv, segment1Offs, segment2Offs+b2ps );
+            if (d2 > 0.0d)
+                return impactTime;
+        }
+
+        /* Second segment end definitely cross the direct on the time interval,
+         * but not necessary on the segment, will check it later.
+         */
+        for (;;)
+        {
+            double tt = (t2 - t1);
+            if (tt < EPS)
+            {
+                if (t1 < impactTime)
+                {
+                    final double sx = (Body.Segment.getX2(tdv, segment1Offs) - Body.Segment.getX1(tdv, segment1Offs));
+                    final double sy = (Body.Segment.getY2(tdv, segment1Offs) - Body.Segment.getY1(tdv, segment1Offs));
+                    final double segmentLength = Math.sqrt( sx*sx + sy*sy );
+                    if (segmentLength > 0.0d)
+                    {
+                        final double px = (Body.Point.getX(tdv, segment2Offs + b2ps)
+                                           - Body.Segment.getX1(tdv, segment1Offs));
+                        final double py = (Body.Point.getY(tdv, segment2Offs + b2ps)
+                                           - Body.Segment.getY1(tdv, segment1Offs));
+                        final double tbx = (((sx * px) + (sy * py)) / segmentLength);
+                        if ((tbx >= 0.0d) && (tbx <= segmentLength))
+                        {
+                            /* Impact happen on segment. */
+                            impact.o1 = b1;
+                            impact.o1pi = b1pi;
+                            impact.o2 = b2;
+                            impact.o2pi = b2pi;
+                            impact.x = Body.Segment.getX1(tdv, segment1Offs) + (tbx * sx / segmentLength);
+                            impact.y = Body.Segment.getY1(tdv, segment1Offs) + (tbx * sy / segmentLength);
+                            impactTime = t1;
+                        }
+                    }
+                    /* case when (segmentLength == 0.0d)
+                     * will be handled anyway later when segment end points
+                     * and ball impact time will be checked.
+                     */
+                }
+                return impactTime;
+            }
+
+            tt = (t1 + (tt / 2.0d));
+            b1.getPrPosition(tt, b1pi, tdv, segment1Offs);
+            b2.getPrPosition(tt, b2pi, tdv, segment2Offs);
+            final double dt = getDistanceDP(tdv, segment1Offs, segment2Offs + b2ps);
+
+            if (dt > 0.0d)
+                t1 = tt;
+            else
+                t2 = tt;
+        }
     }
 
     private static double getImpactTimeSS(
             double [] tdv, Body b1, int b1pi, Body b2, int b2pi, double frameTime, double impactTime, Impact impact )
     {
-        //assert( false );
+        assert( b1.getPrType(b1pi) == Body.SEGMENT );
+        assert( b2.getPrType(b2pi) == Body.SEGMENT );
+        impactTime = getImpactTimeSS( tdv, b1, b1pi, b2, b2pi, 0, frameTime, impactTime, impact );
+        impactTime = getImpactTimeSS( tdv, b1, b1pi, b2, b2pi, Body.Point.SIZE, frameTime, impactTime, impact );
+        impactTime = getImpactTimeSS( tdv, b2, b2pi, b1, b1pi, 0, frameTime, impactTime, impact);
+        impactTime = getImpactTimeSS( tdv, b2, b2pi, b1, b1pi, Body.Point.SIZE, frameTime, impactTime, impact);
         return impactTime;
     }
 
     private static double getImpactTimeSB(
-            double [] tdv, Body o1, int o1pi, Body o2, int o2pi, double frameTime, double impactTime, Impact impact )
+            double [] tdv, Body b1, int b1pi, Body b2, int b2pi, double frameTime, double impactTime, Impact impact )
     {
-        /* o1[o1pi] - segment
-         * o2[o2pi] - ball
+        /* b1[b1pi] - segment
+         * b2[b2pi] - ball
          */
-        double t1 = 0.0;
+        assert( b1.getPrType(b1pi) == Body.SEGMENT );
+        assert( b2.getPrType(b2pi) == Body.BALL );
+
+        double t1 = 0.0d;
         final int segmentOffs = 0;
-        final int ballOffs = o1.getPrPosition( t1, o1pi, tdv, segmentOffs );
-        o2.getPrPosition( t1, o2pi, tdv, ballOffs );
+        final int ballOffs = b1.getPrPosition( t1, b1pi, tdv, segmentOffs );
+        b2.getPrPosition( t1, b2pi, tdv, ballOffs );
         double d1 = getDistanceDB( tdv, segmentOffs, ballOffs );
         if (d1 < 0.0d)
             return impactTime;
 
         double t2 = frameTime;
-        o1.getPrPosition( t2, o1pi, tdv, segmentOffs );
-        o2.getPrPosition( t2, o2pi, tdv, ballOffs );
+        b1.getPrPosition( t2, b1pi, tdv, segmentOffs );
+        b2.getPrPosition( t2, b2pi, tdv, ballOffs );
         double d2 = getDistanceDB( tdv, segmentOffs, ballOffs );
 
         if (d2 > 0.0d)
@@ -209,8 +310,8 @@ public class CDE
              * if distance still > 0 - no impact.
              */
             t2 /= 2.0d;
-            o1.getPrPosition( t2, o1pi, tdv, segmentOffs );
-            o2.getPrPosition( t2, o2pi, tdv, ballOffs );
+            b1.getPrPosition( t2, b1pi, tdv, segmentOffs );
+            b2.getPrPosition( t2, b2pi, tdv, ballOffs );
             d2 = getDistanceDB( tdv, segmentOffs, ballOffs );
             if (d2 > 0.0d)
                 return impactTime;
@@ -237,10 +338,10 @@ public class CDE
                         if ((tbx >= 0.0d) && (tbx <= segmentLength))
                         {
                             /* Impact happen on segment. */
-                            impact.o1 = o1;
-                            impact.o1pi = o1pi;
-                            impact.o2 = o2;
-                            impact.o2pi = o2pi;
+                            impact.o1 = b1;
+                            impact.o1pi = b1pi;
+                            impact.o2 = b2;
+                            impact.o2pi = b2pi;
                             impact.x = Body.Segment.getX1(tdv, segmentOffs) + (tbx * sx / segmentLength);
                             impact.y = Body.Segment.getY1(tdv, segmentOffs) + (tbx * sy / segmentLength);
                             impactTime = t1;
@@ -255,8 +356,8 @@ public class CDE
             }
 
             tt = (t1 + (tt / 2.0d));
-            o1.getPrPosition( tt, o1pi, tdv, segmentOffs );
-            o2.getPrPosition( tt, o2pi, tdv, ballOffs );
+            b1.getPrPosition( tt, b1pi, tdv, segmentOffs );
+            b2.getPrPosition( tt, b2pi, tdv, ballOffs );
             final double dt = getDistanceDB( tdv, segmentOffs, ballOffs );
 
             if (dt > 0.0d)
@@ -501,7 +602,7 @@ public class CDE
                 Impulse.getVx(tdv, impulse1Offs), Impulse.getVy(tdv, impulse1Offs) );
 
         impact.o2.applyPrImpulse( impact.o2pi, impact.x, impact.y,
-                    Impulse.getVx(tdv, impulse2Offs), Impulse.getVy(tdv, impulse2Offs) );
+                Impulse.getVx(tdv, impulse2Offs), Impulse.getVy(tdv, impulse2Offs) );
 
         impact.o1.handleImpact( impact.o2 );
         impact.o2.handleImpact( impact.o1 );
