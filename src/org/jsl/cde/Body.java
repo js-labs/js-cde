@@ -50,7 +50,7 @@ public abstract class Body
     {
         public static int set( double [] dv, int offs, double x, double y, double r )
         {
-            offs += Point.set( dv, offs, x, y );
+            offs = Point.set( dv, offs, x, y );
             dv[offs] = r;
             return (offs + 1);
         }
